@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@100;200;300;400;500;600;700&family=Bitter:wght@200;300;400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="dist/theme-color-switch.css" />
+
+    <link rel="stylesheet" href="./style.css" />
+    <title>ToDo App</title>
+  </head>
+  <body>
+    <div class="mode">
+      <span class="light">Light Mode</span>
+      <label class="switch">
+        <input type="checkbox" id="toggleSwitch" onclick="adddarkmode()" />
+        <span class="slider round"></span>
+      </label>
+      <span class="dark"> Dark Mode </span>
+    </div>
+    <div class="todo" id="changing-mode">
+      <h1 class="todo-h1 line-bottom text">TODO App</h1>
+
+      <form action="/create-task" method="POST" class="todo-inputs">
+        <div class="line-bottom spacing">
+          <label for="description" class="label label-big text"
+            >Description</label
+          ><br />
+          <input
+            type="text"
+            name="description"
+            required
+            class="input text"
+            placeholder="What do you need to do?"
+          />
+        </div>
+
+        <div class="flex line-bottom">
+          <div class="label-small spacing">
+            <label for="category" class="label text">Category</label><br />
+            <select name="category" class="input text">
+              <option class="text">Choose a category</option>
+              <option class="text">Personal</option>
+              <option class="text">Work</option>
+              <option class="text">School</option>
+              <option class="text">Cleaning</option>
+              <option class="text">Other</option>
+            </select>
+          </div>
+          <div class="label-small line-left spacing media-line">
+            <label for="date" class="label text">Due Date</label><br />
+            <input
+              type="date"
+              name="date"
+              required
+              class="input text"
+              format="MM/DD/YYYY"
+            />
+          </div>
+        </div>
+
+        <div class="btn-box margin-add" id="add">
+          <i class="bi bi-plus"></i>
+          <input type="submit" id="add" class="btn" value="ADD TASK" />
+        </div>
+      </form>
+      <form action="/delete-task" method="GET" class="item-box">
+        <div class="btn-box placing" id="delete">
+          <i class="bi bi-trash"></i>
+          <input type="submit" id="delete" class="btn" value="DELETE TASKS" />
+        </div>
+
+        <% for(let i of task) { %>
+        <li class="item">
+          <div class="item-1">
+            <input type="checkbox" name="<%= i._id %>" class="checkbox" />
+          </div>
+          <div class="item-2">
+            <p class="item-description text"><%= i.description %></p>
+            <p class="item-date text">
+              <img src="./images/calendar.png" class="calendar" alt="" />
+              <%= i.date %>
+            </p>
+          </div>
+
+          <div class="item-3">
+            <% if(i.category == "School") { %>
+            <p class="item-category yellow"><%= i.category %></p>
+            <% } %> <% if(i.category == "Personal") { %>
+            <p class="item-category red"><%= i.category %></p>
+            <% } %> <% if(i.category == "Work") { %>
+            <p class="item-category purple"><%= i.category %></p>
+            <% } %> <% if(i.category == "Other") { %>
+            <p class="item-category pink"><%= i.category %></p>
+            <% } %> <% if(i.category == "Cleaning") { %>
+            <p class="item-category blue"><%= i.category %></p>
+            <% } %>
+          </div>
+        </li>
+        <% } %>
+      </form>
+    </div>
+
+    <script>
+      const bgcolor = document.querySelector(".todo");
+      const input = document.querySelectorAll(".input");
+      const inputarr = Array.from(input);
+      // console.log(inputarr);
+
+      const body = document.body;
+      const toggleSwitch = document.querySelector("#toggleSwitch");
+      console.log(body);
+
+      const allText = Array.from(document.querySelectorAll(".text"));
+
+      function adddarkmode() {
+        bgcolor.classList.toggle("mode-black");
+        body.classList.toggle("bodycolor");
+        for (var i = 0; i < inputarr.length; i++) {
+          inputarr[i].classList.toggle("inputcolor");
+        }
+
+        // change text color at dark mode
+        for (var i = 0; i < allText.length; i++) {
+          allText[i].classList.toggle("darkModeText");
+        }
+      }
+
+      // to check mode using local Storage
+
+      if (toggleSwitch) {
+        initTheme(); // on page load, if user has already selected a specific theme -> apply it
+
+        toggleSwitch.addEventListener("change", function (event) {
+          resetTheme(); // update color theme
+        });
+
+        function initTheme() {
+          var darkThemeSelected =
+            localStorage.getItem("toggleSwitch") !== null &&
+            localStorage.getItem("toggleSwitch") === "dark";
+          // update checkbox
+          toggleSwitch.checked = darkThemeSelected;
+
+          if (darkThemeSelected) {
+            bgcolor.classList.toggle("mode-black");
+            body.classList.toggle("bodycolor");
+            for (var i = 0; i < inputarr.length; i++) {
+              inputarr[i].classList.toggle("inputcolor");
+            }
+
+            // change text color at dark mode
+            for (var i = 0; i < allText.length; i++) {
+              allText[i].classList.toggle("darkModeText");
+            }
+            document.body.setAttribute("data-theme", "dark");
+          } else {
+            document.body.removeAttribute("data-theme");
+          }
+        }
+
+        function resetTheme() {
+          if (toggleSwitch.checked) {
+            // dark theme has been selected
+            document.body.setAttribute("data-theme", "dark");
+            localStorage.setItem("toggleSwitch", "dark"); // save theme selection
+          } else {
+            document.body.removeAttribute("data-theme");
+            localStorage.removeItem("toggleSwitch"); // reset theme selection
+          }
+        }
+      }
+    </script>
+  </body>
+</html>
